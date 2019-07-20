@@ -8,7 +8,8 @@ class MazeGrid:
     a grid of cell objects.
     """
 
-    def __init__(self, width, height, initial_x, initial_y):
+    def __init__(self, width, height, initial_x, initial_y,
+                 lbase_coords, rbase_coords):
         self.width = width
         self.height = height
         self.walls = self.generate_wall_grid()
@@ -22,6 +23,8 @@ class MazeGrid:
                      .format(initial_x, initial_y, self.width - 1,
                              self.height - 1))
             raise ValueError(error)
+        self.lbase_p1, self.lbase_p2 = lbase_coords
+        self.rbase_p1, self.rbase_p2 = rbase_coords
 
     # public-ey functions
 
@@ -59,10 +62,34 @@ class MazeGrid:
             self.current_coordinates = next_current
             self.mark_current_as_visited()
             return coords
-        if not self.stack:
+        if len(self.stack) > 0:
             self.current_coordinates = self.stack.pop()
             return self.next_step()
         return None
+
+    def generate_maze(self):
+        while self.next_step() is not None:
+            pass
+        lbase_x1, lbase_y1 = self.lbase_p1
+        lbase_x2, lbase_y2 = self.lbase_p2
+        # remove walls in left base
+        for col_idx in range(lbase_x1, lbase_x2):
+            for row_idx in range(lbase_y1, lbase_y2):
+                cell_p1 = col_idx, row_idx
+                right_wall_p2 = col_idx + 1, row_idx
+                lower_wall_p2 = col_idx, row_idx + 1
+                self.open_wall(cell_p1, right_wall_p2)
+                self.open_wall(cell_p1, lower_wall_p2)
+        rbase_x1, rbase_y1 = self.rbase_p1
+        rbase_x2, rbase_y2 = self.rbase_p2
+        # remove walls in right base
+        for col_idx in range(rbase_x1, rbase_x2):
+            for row_idx in range(rbase_y1, rbase_y2):
+                cell_p1 = col_idx, row_idx
+                right_wall_p2 = col_idx + 1, row_idx
+                lower_wall_p2 = col_idx, row_idx + 1
+                self.open_wall(cell_p1, right_wall_p2)
+                self.open_wall(cell_p1, lower_wall_p2)
 
     # private-y functions
 
@@ -147,7 +174,9 @@ class MazeGrid:
         self.grid[x][y].mark_visited()
 
     def open_wall(self, p1, p2):
-        """Opens the wall between the cells at the specified coordinates."""
+        """Opens the wall between the cells at the specified
+        cell-coordinates.
+        """
         self.check_valid_adjacent_cells(p1, p2)
         x1, y1 = p1
         x2, y2 = p2
