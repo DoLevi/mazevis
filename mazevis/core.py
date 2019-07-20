@@ -1,51 +1,37 @@
 """Driver module for execution for the mazevis application."""
-import tkinter
-from mazevis.infrastructure import drawer
-from mazevis.infrastructure import grid
+from mazevis.infrastructure import starter
 
-UPDATE_RATE = 10
+UPDATE_RATE = None
 
-CELL_COLUMNS = 28
-CELL_ROWS = 15
+CELL_COLUMNS = 56
+CELL_ROWS = 30
+BASE_SIZE = 4
 
 
-class MazeVisualizer:
-    """Class containing functions to format, initialize and launch mazevis
-    application."""
+def compute_lbase(rows, block_size):
+    """Computes and returns vertically centered coordinates
+    for the left base.
+    """
+    base_offset_h = int((rows - block_size) / 2)
+    lbase_p1 = (0, base_offset_h)
+    lbase_p2 = (block_size, base_offset_h + block_size)
+    return lbase_p1, lbase_p2
 
-    def __init__(self):
-        self.root = MazeVisualizer.generate_root()
-        root_frame = tkinter.Frame(self.root)
-        root_frame.pack()
-        self.maze_grid = grid.MazeGrid(CELL_COLUMNS, CELL_ROWS, 0, 0)
-        self.maze_drawer = drawer.MazeDrawer(self.maze_grid, 20, 40)
-        self.maze_drawer.pack(side=tkinter.TOP)
-        self.maze_drawer.draw_grid()
 
-    @staticmethod
-    def generate_root():
-        """Generates a TK instance half the screen size."""
-        root = tkinter.Tk()
-        center_x = root.winfo_screenwidth() / 2
-        center_y = root.winfo_screenheight() / 2
-        window_x = center_x / 2
-        window_y = center_y / 2
-        coords = "{}x{}+{}+{}".format(int(center_x), int(center_y),
-                                      int(window_x), int(window_y))
-        root.geometry(coords)
-        return root
-
-    def updater(self):
-        """Updates the application state (logical + graphical)."""
-        removed_wall = self.maze_grid.next_step()
-        if removed_wall is None:
-            print("Finished")
-        else:
-            self.maze_drawer.undraw_wall(removed_wall)
-            self.root.after(UPDATE_RATE, self.updater)
+def compute_rbase(rows, cols, block_size):
+    """Computes and returns vertically centered coordinates
+    for the right base.
+    """
+    base_offset_h = int((rows - block_size) / 2)
+    rbase_p1 = (cols - block_size, base_offset_h)
+    rbase_p2 = (cols, base_offset_h + block_size)
+    return rbase_p1, rbase_p2
 
 
 if __name__ == '__main__':
-    VIS = MazeVisualizer()
+    LBASE = compute_lbase(CELL_ROWS, BASE_SIZE)
+    RBASE = compute_rbase(CELL_ROWS, CELL_COLUMNS, BASE_SIZE)
+    VIS = starter.MazeVisualizer(CELL_COLUMNS, CELL_ROWS, UPDATE_RATE,
+                                 LBASE, RBASE)
     VIS.updater()
-    VIS.root.mainloop()
+    VIS.do_mainloop()

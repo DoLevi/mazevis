@@ -39,8 +39,6 @@ class MazeDrawer(tkinter.Frame):
         for x in range(self.maze_grid.get_wall_width()):
             for y in range(self.maze_grid.get_wall_height()):
                 node = self.maze_grid.get_wall_at(x, y)
-                if node is None:
-                    continue
                 if node is True:
                     if x % 2 == 1:
                         self.draw_vertical_wall((x, y))
