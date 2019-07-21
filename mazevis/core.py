@@ -3,9 +3,9 @@ from mazevis.infrastructure import starter
 
 UPDATE_RATE = None
 
-CELL_COLUMNS = 56
-CELL_ROWS = 30
-BASE_SIZE = 4
+CELL_COLUMNS = 28
+CELL_ROWS = 15
+BASE_SIZE = 3
 
 
 def compute_lbase(rows, block_size):

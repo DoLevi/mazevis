@@ -20,8 +20,10 @@ class MazeVisualizer:
         if not self.update_rate:
             print("Grid will be created initially.")
             self.maze_grid.generate_maze()
+            self.maze_grid.spawn_bases()
+            self.maze_grid.spawn_items()
             # initialize drawer
-        self.maze_drawer = drawer.MazeDrawer(self.maze_grid, 20, 40, 16)
+        self.maze_drawer = drawer.MazeDrawer(self.maze_grid, 20, 40)
         self.maze_drawer.pack(side=tkinter.TOP)
         self.maze_drawer.draw_grid()
 

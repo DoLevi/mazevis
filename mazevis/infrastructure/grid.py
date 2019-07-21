@@ -25,6 +25,7 @@ class MazeGrid:
             raise ValueError(error)
         self.lbase_p1, self.lbase_p2 = lbase_coords
         self.rbase_p1, self.rbase_p2 = rbase_coords
+        self.item_count = 5
 
     # public-ey functions
 
@@ -43,6 +44,10 @@ class MazeGrid:
     def get_wall_height(self):
         """Returns the height of the grid in number of wall objects."""
         return 2 * self.height - 1
+
+    def get_cell_at(self, x, y):
+        """Returns the cell object at the specified cell-coordinates."""
+        return self.grid[x][y]
 
     def get_wall_at(self, x, y):
         """Returns the wall object at the specified wall-coordinates."""
@@ -91,7 +96,42 @@ class MazeGrid:
                 self.open_wall(cell_p1, right_wall_p2)
                 self.open_wall(cell_p1, lower_wall_p2)
 
+    def spawn_bases(self):
+        lcenter_x, lcenter_y = MazeGrid.center_of(self.lbase_p1, self.lbase_p2)
+        self.grid[lcenter_x][lcenter_y].mark_base()
+        rcenter_x, rcenter_y = MazeGrid.center_of(self.rbase_p1, self.rbase_p2)
+        self.grid[rcenter_x][rcenter_y].mark_base()
+
+    def spawn_items(self):
+        for i in range(self.item_count):
+            random_x = random.choice(range(self.width))
+            random_y = random.choice(range(self.height))
+            random_cell = self.grid[random_x][random_y]
+            if random_cell.has_item() or self.is_base((random_x, random_y)):
+                # do not place item twice or in a base territory
+                i -= 1
+            else:
+                random_cell.assign_item((i + 1) * 1000)
+
     # private-y functions
+
+    @staticmethod
+    def center_of(p1, p2):
+        x_of_p1, y_of_p1 = p1
+        x_of_p2, y_of_p2 = p2
+        x_sum = x_of_p1 + x_of_p2
+        y_sum = y_of_p1 + y_of_p2
+        if x_sum % 2 == 0:
+            # center can be one block wide
+            x_sum += 1
+        else:
+            # center must be two blocks wide
+            pass
+        if y_sum % 2 == 0:
+            y_sum += 1
+        lbase_center_x = int(x_sum / 2)
+        lbase_center_y = int(y_sum / 2)
+        return lbase_center_x, lbase_center_y
 
     @staticmethod
     def are_adjacent(p1, p2):
@@ -127,6 +167,21 @@ class MazeGrid:
         and returns the result as a bool value.
         """
         if 0 <= x <= self.width and 0 <= y <= self.height:
+            return True
+        return False
+
+    def is_base(self, point):
+        """Checks whether the specified cell-coordinates are
+        within base territory and returns the result as a bool value.
+        """
+        point_x, point_y = point
+        lbase_x1, lbase_y1 = self.lbase_p1
+        lbase_x2, lbase_y2 = self.lbase_p2
+        if lbase_x1 <= point_x <= lbase_x2 and lbase_y1 <= point_y <= lbase_y2:
+            return True
+        rbase_x1, rbase_y1 = self.rbase_p1
+        rbase_x2, rbase_y2 = self.rbase_p2
+        if rbase_x1 <= point_x <= rbase_x2 and rbase_y1 <= point_y <= rbase_y2:
             return True
         return False
 

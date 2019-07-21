@@ -1,0 +1,7 @@
+CELL_SIZE = 32
+
+BASE_FG = "#000000"
+BASE_BG = "#0000FF"
+
+ITEM_FG = ""
+ITEM_BG = "#CCCCCC"
